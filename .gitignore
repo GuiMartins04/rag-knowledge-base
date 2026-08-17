@@ -1,0 +1,19 @@
+# Ambiente virtual Python
+.venv/
+
+# Variáveis de ambiente / segredos
+.env
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Banco vetorial local (dados gerados, não código)
+chroma_db/
+
+# VS Code
+.vscode/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

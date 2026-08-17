@@ -1,0 +1,17 @@
+# --- API REST ---
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+
+# --- Configuração e variáveis de ambiente ---
+python-dotenv>=1.0
+pydantic-settings>=2.4
+
+# --- Leitura de PDF ---
+pypdf>=5.0
+
+# --- Banco vetorial ---
+chromadb>=0.5
+
+# --- LLM e embeddings (Google Gemini) ---
+google-genai>=1.0
