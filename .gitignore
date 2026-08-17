@@ -11,6 +11,10 @@ __pycache__/
 # Banco vetorial local (dados gerados, não código)
 chroma_db/
 
+# Rascunhos e experimentos locais
+playground.py
+scratch/
+
 # VS Code
 .vscode/
 
