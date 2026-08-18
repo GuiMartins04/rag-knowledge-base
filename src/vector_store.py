@@ -25,6 +25,16 @@ def get_collection():
     return client.get_or_create_collection(name=COLLECTION_NAME)
 
 
+def reset_collection() -> None:
+    """Apaga a coleção inteira.
+
+    Necessário ao mudar as regras de indexação: `upsert` atualiza e insere,
+    mas nunca remove chunks antigos que deixaram de ser válidos.
+    """
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    client.delete_collection(name=COLLECTION_NAME)
+
+
 def index_chunks(chunks: list[Chunk], source: str) -> None:
     """Gera os embeddings dos chunks e grava tudo na coleção.
 
@@ -42,13 +52,15 @@ def index_chunks(chunks: list[Chunk], source: str) -> None:
     )
 
 
-def search(question: str, top_k: int = TOP_K) -> list[SearchResult]:
-    """Recupera os chunks mais parecidos com a pergunta."""
+def search_by_embedding(embedding: list[float], top_k: int = TOP_K) -> list[SearchResult]:
+    """Recupera os chunks mais próximos de um embedding já calculado.
+
+    Existe separado de `search()` para permitir reaproveitar o mesmo
+    embedding em várias buscas (ex.: comparar top_k diferentes) sem chamar a
+    API de embeddings de novo a cada uma.
+    """
     collection = get_collection()
-    results = collection.query(
-        query_embeddings=[embed_query(question)],
-        n_results=top_k,
-    )
+    results = collection.query(query_embeddings=[embedding], n_results=top_k)
 
     return [
         SearchResult(
@@ -63,3 +75,8 @@ def search(question: str, top_k: int = TOP_K) -> list[SearchResult]:
             results["distances"][0],
         )
     ]
+
+
+def search(question: str, top_k: int = TOP_K) -> list[SearchResult]:
+    """Recupera os chunks mais parecidos com a pergunta."""
+    return search_by_embedding(embed_query(question), top_k)

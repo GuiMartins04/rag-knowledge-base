@@ -100,6 +100,40 @@ O modelo sabe que a resposta é Canberra, mas o prompt o impede de usar conhecim
 
 ---
 
+## Avaliação do retrieval
+
+Um RAG só é tão bom quanto seu retrieval: se o chunk certo não é recuperado, nenhum prompt corrige a resposta. Em vez de assumir que a busca funciona bem, ela foi medida com um conjunto de 18 perguntas cuja página de resposta é conhecida (`evaluation/dataset.json`), usando duas métricas padrão de sistemas de busca:
+
+- **Hit Rate@k** — em que fração das perguntas a página correta apareceu entre os *k* resultados retornados.
+- **MRR** (*Mean Reciprocal Rank*) — em que posição ela apareceu. Acertar em 1º lugar vale 1,0; em 2º, 0,5; em 3º, 0,33 — distingue "achou com confiança" de "achou por sorte no fim da lista".
+
+```bash
+python evaluate.py
+```
+
+| top_k | Hit Rate | MRR |
+|---|---|---|
+| 1 | 61,1% | 0,611 |
+| 3 | 72,2% | 0,667 |
+| 5 | 77,8% | 0,681 |
+
+### Uma correção que a própria avaliação revelou
+
+A primeira rodada media 50% de Hit Rate@1. Investigando a falha mais grave — a busca por "quem são os autores?" devolvia páginas de **bibliografia**, não a capa do paper — ficou claro o motivo: listas de referências (`[42] Autor, Título...`) são semanticamente parecidas com perguntas sobre autoria, mas são a seção errada.
+
+A correção foi medir a estrutura do texto antes de decidir um filtro. Contar linhas iniciadas por `[N]` mostrou uma separação clara: páginas de conteúdo ficam entre 0% e 12% dessas linhas, páginas de bibliografia entre 19% e 25%. Um limiar de 15% (`src/preprocessing.py`) remove a bibliografia da indexação sem depender de heurísticas frágeis como densidade geral de citações, que **não separava os dois grupos** numa primeira tentativa descartada.
+
+### Duas falhas remanescentes, e por que ficaram
+
+Mesmo depois da correção, 4 das 18 perguntas ainda falham com top_k=5 — e as duas mais interessantes não são bugs, são limites reais de busca por embeddings dessa:
+
+- **"Quem são os autores e instituições?"** — a página certa (1) aparece na 6ª posição, distância 0,687. Ela perde para trechos da seção de *Acknowledgments* na página 10 (distância 0,654), que menciona bolsas de pesquisa e financiamento — vocabulário próximo o suficiente de "autores/instituições" para vencer por uma margem pequena.
+- **"Por que o RAG alucina menos?"** — a frase exata existe na página 6, mas o chunk que a contém também carrega bastante texto sobre resultados de outro experimento. Isso dilui o embedding do chunk, empurrando-o para a 9ª posição (distância 0,536) — atrás de chunks que descrevem RAG de forma mais geral.
+
+Ambos os casos apontam para a mesma direção de melhoria, registrada no roadmap: um **reranking** com um segundo modelo (ou uma busca híbrida com correspondência exata de palavras-chave) resolveria os dois, porque reavalia os candidatos pelo texto completo em vez de só pela proximidade do vetor.
+
+---
+
 ## Decisões técnicas
 
 **Chunking com sobreposição de 200 caracteres.** Sem sobreposição, uma frase que cai exatamente no corte entre dois chunks fica pela metade em ambos e não é recuperada por nenhum. A sobreposição garante que ideias na fronteira apareçam íntegras em pelo menos um chunk.
@@ -199,12 +233,14 @@ python -m examples.similarity_demo
 
 ## Roadmap
 
+- [x] Avaliação sistemática do retrieval (Hit Rate, MRR) com conjunto de perguntas e gabarito
+- [x] Remoção de páginas de bibliografia da indexação (Hit Rate@1 subiu de 50,0% para 61,1%, junto com a correção de um gabarito incorreto identificado na própria investigação)
+- [ ] Reranking dos chunks recuperados antes da geração — resolveria as duas falhas identificadas na avaliação, onde o vetor mais próximo não é o trecho semanticamente correto
 - [ ] Filtro por limiar de distância, descartando contexto irrelevante antes de chamar o LLM
 - [ ] Testes automatizados (pytest) para chunking e retrieval
 - [ ] Suporte a mais formatos além de PDF (DOCX, Markdown, HTML)
 - [ ] Interface web simples para upload e consulta
 - [ ] Containerização com Docker
-- [ ] Reranking dos chunks recuperados antes da geração
 - [ ] Observabilidade: log de latência, tokens consumidos e distâncias por consulta
 
 ---

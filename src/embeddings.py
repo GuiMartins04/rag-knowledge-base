@@ -34,3 +34,8 @@ def embed_documents(texts: list[str]) -> list[list[float]]:
 def embed_query(text: str) -> list[float]:
     """Embedding de uma pergunta feita pelo usuário."""
     return _embed([text], "RETRIEVAL_QUERY")[0]
+
+
+def embed_queries(texts: list[str]) -> list[list[float]]:
+    """Embeddings de várias perguntas de uma vez, em lote."""
+    return _embed(texts, "RETRIEVAL_QUERY")

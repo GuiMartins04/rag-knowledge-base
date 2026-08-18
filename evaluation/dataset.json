@@ -1,0 +1,78 @@
+{
+  "document": "rag-paper.pdf",
+  "description": "Perguntas em português sobre o paper original de RAG (Lewis et al., 2020). O campo expected_pages traz as páginas que realmente contêm a resposta, verificadas no texto extraído do PDF.",
+  "cases": [
+    {
+      "question": "Quais são os dois modelos RAG propostos no paper?",
+      "expected_pages": [3]
+    },
+    {
+      "question": "Qual retriever é usado para buscar os documentos?",
+      "expected_pages": [2, 3]
+    },
+    {
+      "question": "Qual arquitetura foi usada como gerador?",
+      "expected_pages": [3]
+    },
+    {
+      "question": "Qual otimizador foi utilizado no treinamento?",
+      "expected_pages": [4]
+    },
+    {
+      "question": "O encoder de documentos é atualizado durante o treinamento?",
+      "expected_pages": [4]
+    },
+    {
+      "question": "Qual biblioteca é usada para a busca de vizinhos mais próximos?",
+      "expected_pages": [4, 17]
+    },
+    {
+      "question": "Quantos documentos compõem o índice da Wikipedia?",
+      "expected_pages": [4]
+    },
+    {
+      "question": "Quantos documentos recuperados foram usados nos testes de open-domain QA com RAG-Token?",
+      "expected_pages": [17]
+    },
+    {
+      "question": "Qual estratégia de decodificação foi usada nas tarefas de perguntas e respostas?",
+      "expected_pages": [17]
+    },
+    {
+      "question": "Qual foi a pontuação do RAG-Sequence no Natural Questions?",
+      "expected_pages": [6]
+    },
+    {
+      "question": "Em que porcentagem dos casos o RAG foi avaliado como mais factual que o BART?",
+      "expected_pages": [8]
+    },
+    {
+      "question": "Qual a proporção de tri-gramas distintos do RAG-Token no MSMARCO?",
+      "expected_pages": [8]
+    },
+    {
+      "question": "Quantos exemplos de treino tem o dataset Natural Questions?",
+      "expected_pages": [19]
+    },
+    {
+      "question": "Por que o RAG alucina menos que modelos puramente paramétricos?",
+      "expected_pages": [6, 10]
+    },
+    {
+      "question": "Quais tarefas foram usadas para avaliar o modelo?",
+      "expected_pages": [2, 5]
+    },
+    {
+      "question": "O que é a tarefa FEVER e como ela foi tratada?",
+      "expected_pages": [5]
+    },
+    {
+      "question": "Qual a diferença entre RAG-Sequence e RAG-Token?",
+      "expected_pages": [3]
+    },
+    {
+      "question": "Quem são os autores do paper e a que instituições pertencem?",
+      "expected_pages": [1]
+    }
+  ]
+}
